@@ -31,6 +31,8 @@
   "author": "Edon Gashi",
   "license": "MIT",
   "dependencies": {
+    "@types/moo": "^0.5.3",
+    "moo": "^0.5.1",
     "tslib": "~2.0.0"
   }
 }
