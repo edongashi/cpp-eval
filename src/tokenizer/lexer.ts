@@ -1,5 +1,5 @@
 import * as moo from 'moo'
-import { default as keywordsList } from './keywords'
+import { default as keywordsList } from '../keywords'
 
 const keywords = keywordsList.reduce((acc, next) => {
   acc['KEYWORD-' + next.toUpperCase()] = next
