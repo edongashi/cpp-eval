@@ -1,12 +1,12 @@
 import * as moo from 'moo'
+import { Token } from 'moo'
 import { default as keywordsList } from '../keywords'
+import { CHAR, COMMENT, MULTILINE_COMMENT, STRING } from './patterns'
 
 const keywords = keywordsList.reduce((acc, next) => {
   acc['KEYWORD-' + next.toUpperCase()] = next
   return acc
 }, {})
-
-const STRING = /"(?:\\["\\]|[^\n"\\])*"/
 
 const symbols = {
   ARROW: '->',
@@ -42,8 +42,6 @@ const symbols = {
   QUESTIONMARK: '?'
 }
 
-const COMMENT = /\/\/.*?$/
-const MULTILINE_COMMENT = { match: /\/\*(?:.|\n)*?\*\//, lineBreaks: true }
 const UNKNOWN = /[^\n]+?/
 
 const lexer = moo.states({
@@ -56,6 +54,7 @@ const lexer = moo.states({
     },
     ...symbols,
     STRING,
+    CHAR,
     IDENTIFIER: {
       match: /[a-zA-Z_][a-zA-Z0-9_]*/,
       type: moo.keywords(keywords)
@@ -67,7 +66,14 @@ const lexer = moo.states({
   },
   preprocessor: {
     COMMENT,
-    MULTILINE_COMMENT,
+    MULTILINE_COMMENT_SINGLE_LINE: {
+      match: /\/\*.*?\*\//,
+      type: () => 'MULTILINE_COMMENT'
+    },
+    MULTILINE_COMMENT: {
+      ...MULTILINE_COMMENT,
+      pop: 1
+    },
     NEWLINE: { match: /\r?\n/, lineBreaks: true, pop: 1 },
     PREPROCESSOR_INCLUDE: 'include',
     PREPROCESSOR_DEFINE: { match: 'define', pop: 1 },
@@ -78,7 +84,7 @@ const lexer = moo.states({
   }
 })
 
-export function tokenize(source: string) {
+export function tokenize(source: string): Token[] {
   lexer.reset(source)
 
   const tokens = []
