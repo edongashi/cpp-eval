@@ -1,7 +1,8 @@
-import { exec, ExecException } from 'child_process'
-import path from 'path'
-import tmp, { withFile, tmpName } from 'tmp-promise'
+import { exec, ExecException, execFile } from 'child_process'
 import fs from 'fs'
+import path from 'path'
+import { Readable } from 'stream'
+import tmp, { tmpName, withFile } from 'tmp-promise'
 
 tmp.setGracefulCleanup()
 
@@ -120,7 +121,10 @@ export function compileSource(
   return withSource(source, (path) => compileFile(path, outputFile))
 }
 
-export async function evalFile(file: string): Promise<ExecutionResult> {
+export async function evalFile(
+  file: string,
+  stdin?: string
+): Promise<ExecutionResult> {
   const compilation = await compileFile(file)
   if (compilation.status !== 'OK') {
     return {
@@ -132,8 +136,8 @@ export async function evalFile(file: string): Promise<ExecutionResult> {
   }
 
   return new Promise((resolve) => {
-    exec(
-      path.basename(compilation.outputFile),
+    const child = execFile(
+      compilation.outputFile,
       {
         cwd: path.dirname(compilation.outputFile),
         timeout: 500
@@ -154,14 +158,19 @@ export async function evalFile(file: string): Promise<ExecutionResult> {
         })
       }
     )
+
+    if (stdin) {
+      const stdinStream = new Readable()
+      stdinStream.push(stdin)
+      stdinStream.push(null)
+      stdinStream.pipe(child.stdin)
+    }
   })
 }
 
-export function evalSource(source: string): Promise<ExecutionResult> {
-  return withSource(source, (file) => evalFile(file))
-}
-
-export async function simpleEval(source: string): Promise<string> {
-  const result = await evalSource(source)
-  return result.output || result.error || ''
+export function evalSource(
+  source: string,
+  stdin?: string
+): Promise<ExecutionResult> {
+  return withSource(source, (file) => evalFile(file, stdin))
 }
