@@ -1,6 +1,11 @@
 import { evalSource, typeCheckSource } from '../compiler'
 import { Declaration, DeclarationType } from '../parser'
-import { AnalyzerConfig, DeclarationAnalyzer, RunOptions } from './types'
+import {
+  AnalyzerConfig,
+  CompileOptions,
+  DeclarationAnalyzer,
+  RunOptions
+} from './types'
 import { normalizeAnalysisResult } from './utils'
 
 function analyzer(a: DeclarationAnalyzer): DeclarationAnalyzer {
@@ -12,22 +17,20 @@ const PREFIX = `
 using namespace std;
 `.trim()
 
-const SUFFIX = `
-int main() {
-  return 0;
-}
-`.trim()
-
 export function compiles(
   config: AnalyzerConfig,
-  prefix = PREFIX,
-  suffix = SUFFIX
+  { prefix = PREFIX, suffix = '', sourceMapper }: CompileOptions = {}
 ): DeclarationAnalyzer {
   return analyzer({
     config,
     async analyze(declaration) {
+      let { source } = declaration
+      if (typeof sourceMapper === 'function') {
+        source = sourceMapper(source)
+      }
+
       const result = await typeCheckSource(
-        `${prefix.trim()}\n\n${declaration.source}\n\n${suffix.trim()}`.trim()
+        `${prefix.trim()}\n\n${source.trim()}\n\n${suffix.trim()}`.trim()
       )
 
       switch (result.status) {
@@ -124,11 +127,11 @@ export function declarationRuns(
   {
     stdin,
     prefix = PREFIX,
-    suffix = SUFFIX,
+    suffix = '',
     requireOk = false,
     sourceMapper,
     validateStdout
-  }: RunOptions
+  }: RunOptions = {}
 ): DeclarationAnalyzer {
   return analyzer({
     config,

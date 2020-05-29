@@ -26,6 +26,12 @@ export interface RootAnalyzer {
   analyze(root: DocumentRoot): AnalysisResult
 }
 
+export interface CompileOptions {
+  prefix?: string
+  suffix?: string
+  sourceMapper?: (source: string) => string
+}
+
 export interface RunOptions {
   stdin?: string
   prefix?: string
@@ -33,4 +39,11 @@ export interface RunOptions {
   requireOk?: boolean
   sourceMapper?: (source: string) => string
   validateStdout?: (stdout: string) => AnalysisResult
+}
+
+export interface AnalysisSpecification {
+  root: RootAnalyzer[]
+  declarations: {
+    [name: string]: DeclarationAnalyzer[]
+  }
 }
