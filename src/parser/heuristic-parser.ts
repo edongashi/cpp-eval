@@ -1,5 +1,6 @@
 import { ParseResult, Declaration, Declarations } from './types'
 import { split } from './tokenizer'
+import { tokenize } from './tokenizer/lexer'
 
 export function parse(source: string): ParseResult {
   const tokens = split(source)
@@ -27,7 +28,8 @@ function parseDeclaration(source: string): Declaration | null {
     return {
       name,
       type: type as 'class' | 'enum' | 'struct',
-      source
+      source,
+      tokens: tokenize(source)
     }
   }
 
@@ -37,7 +39,8 @@ function parseDeclaration(source: string): Declaration | null {
     return {
       name,
       type: 'function',
-      source
+      source,
+      tokens: tokenize(source)
     }
   }
 

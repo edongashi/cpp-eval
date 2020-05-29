@@ -1,5 +1,6 @@
 import { TokenStream, Token, assertType } from './tokenizer'
 import { ParseResult, Declarations } from './types'
+import { tokenize } from './tokenizer/lexer'
 
 export function parse(source: string | TokenStream): ParseResult {
   const tokens = typeof source === 'string' ? new TokenStream(source) : source
@@ -15,16 +16,21 @@ export function parse(source: string | TokenStream): ParseResult {
       case 'class':
       case 'enum':
       case 'struct':
-      case 'function':
+      case 'function': {
+        const source = tokens.sourceBetween(
+          declaration.source[0],
+          declaration.source[1]
+        )
+
         declarations[declaration.name] = {
           name: declaration.name,
           type: declaration.type,
-          source: tokens.sourceBetween(
-            declaration.source[0],
-            declaration.source[1]
-          )
+          source,
+          tokens: tokenize(source)
         }
+
         break
+      }
     }
   }
 

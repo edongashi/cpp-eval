@@ -1,3 +1,5 @@
+import { Token } from 'moo'
+
 export interface ParseResult {
   declarations: Declarations
   warnings: string[]
@@ -12,4 +14,5 @@ export interface Declaration {
   type: 'class' | 'struct' | 'enum' | 'function'
   source: string
   name: string
+  tokens: Token[]
 }
