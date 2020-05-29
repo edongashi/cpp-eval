@@ -25,3 +25,12 @@ export interface RootAnalyzer {
   config: AnalyzerConfig
   analyze(root: DocumentRoot): AnalysisResult
 }
+
+export interface RunOptions {
+  stdin?: string
+  prefix?: string
+  suffix?: string
+  requireOk?: boolean
+  sourceMapper?: (source: string) => string
+  validateStdout?: (stdout: string) => AnalysisResult
+}
