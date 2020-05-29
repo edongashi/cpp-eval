@@ -1,6 +1,6 @@
 import * as moo from 'moo'
 import { Token } from 'moo'
-import { default as keywordsList } from '../keywords'
+import { default as keywordsList } from './keywords'
 import { CHAR, COMMENT, MULTILINE_COMMENT, STRING } from './patterns'
 
 const keywords = keywordsList.reduce((acc, next) => {

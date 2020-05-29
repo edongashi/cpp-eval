@@ -13,7 +13,10 @@ const defaults: ReaderOptions = {
   ignoreComments: true
 }
 
-export function assertType(token: Token, type: string | ((Token) => boolean)) {
+export function assertType(
+  token: Token,
+  type: string | ((token: Token) => boolean)
+): void {
   if (typeof type === 'string' && token.type !== type) {
     throw new Error(
       `Unexpected token '${token.value}' at L${token.line}:${token.col}, expected '${type}'.`
@@ -26,7 +29,7 @@ export function assertType(token: Token, type: string | ((Token) => boolean)) {
 }
 
 export class TokenStream {
-  private position: number = -1
+  private position = -1
   private readonly source: string
   private readonly tokens: Token[]
   private stack: ReaderOptions[] = [defaults]
@@ -79,7 +82,7 @@ export class TokenStream {
     return this.tokens[index]
   }
 
-  assertNext(type: string | ((Token) => boolean)) {
+  assertNext(type: string | ((Token) => boolean)): Token {
     const index = this.nextValidIndex()
     if (index >= this.tokens.length) {
       throw new Error(`Unexpected end of input.`)
@@ -91,14 +94,11 @@ export class TokenStream {
     return this.tokens[index]
   }
 
-  hasNext() {
+  hasNext(): boolean {
     return this.nextValidIndex() < this.tokens.length
   }
 
-  takeUntil(
-    cond: string | ((Token) => boolean),
-    include: boolean = false
-  ): Token[] {
+  takeUntil(cond: string | ((Token) => boolean), include = false): Token[] {
     const tokens: Token[] = []
 
     while (this.hasNext()) {
@@ -145,10 +145,14 @@ export class TokenStream {
     return this.stack[this.stack.length - 1]
   }
 
-  sourceBetween(token1: Token, token2: Token) {
+  sourceBetween(token1: Token, token2: Token): string {
     return this.source.substring(
       token1.offset,
       token2.offset + token2.text.length
     )
+  }
+
+  toArray(): Token[] {
+    return [...this.tokens]
   }
 }

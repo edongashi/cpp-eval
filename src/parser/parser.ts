@@ -1,4 +1,39 @@
-import { TokenStream, Token, assertType } from '../tokenizer'
+import { TokenStream, Token, assertType } from './tokenizer'
+import { ParseResult, Declarations } from './types'
+
+export function parse(source: string | TokenStream): ParseResult {
+  const tokens = typeof source === 'string' ? new TokenStream(source) : source
+
+  const { declarations: topLevelDeclarations, errors } = parseDeclarations(
+    tokens
+  )
+
+  const declarations: Declarations = {}
+
+  for (const declaration of topLevelDeclarations) {
+    switch (declaration.type) {
+      case 'class':
+      case 'enum':
+      case 'struct':
+      case 'function':
+        declarations[declaration.name] = {
+          name: declaration.name,
+          type: declaration.type,
+          source: tokens.sourceBetween(
+            declaration.source[0],
+            declaration.source[1]
+          )
+        }
+        break
+    }
+  }
+
+  return {
+    declarations,
+    errors,
+    warnings: []
+  }
+}
 
 interface PreprocessorDirective {
   type: 'include' | 'define'
@@ -21,7 +56,7 @@ interface TypeDeclaration {
 }
 
 interface FunctionDeclaration {
-  type: 'declaration' | 'definition'
+  type: 'function-declaration' | 'function'
   name: string
   returnType: Token[]
   args: Token[]
@@ -47,7 +82,7 @@ const preprocessorDirectives = {
   PREPROCESSOR_DEFINE: 'define'
 }
 
-export function parse(
+function parseDeclarations(
   tokens: TokenStream
 ): {
   declarations: TopLevelDeclaration[]
@@ -67,7 +102,10 @@ export function parse(
       const declaration = parseTopLevelDeclaration(tokens)
       declarations.push(declaration)
     } catch (e) {
-      errors.push(e.message)
+      if (!errors.includes(e.message)) {
+        errors.push(e.message)
+      }
+
       if (tokens.hasNext()) {
         tokens.next()
       }
@@ -77,9 +115,7 @@ export function parse(
   return { declarations, errors }
 }
 
-export function parseTopLevelDeclaration(
-  tokens: TokenStream
-): TopLevelDeclaration {
+function parseTopLevelDeclaration(tokens: TokenStream): TopLevelDeclaration {
   const current = tokens.peek()
   switch (current.type) {
     case 'HASH':
@@ -95,7 +131,7 @@ export function parseTopLevelDeclaration(
   }
 }
 
-export function parsePreprocessorDirective(
+function parsePreprocessorDirective(
   tokens: TokenStream
 ): PreprocessorDirective {
   tokens.pushOptions()
@@ -116,7 +152,7 @@ export function parsePreprocessorDirective(
   }
 }
 
-export function parseUsingStatement(tokens: TokenStream): UsingStatement {
+function parseUsingStatement(tokens: TokenStream): UsingStatement {
   tokens.pushOptions()
   try {
     const first = tokens.assertNext('KEYWORD-USING')
@@ -161,7 +197,7 @@ function parseBody(tokens: TokenStream, includeSemicolon: boolean): Token[] {
   return body
 }
 
-export function parseTypeDeclaration(tokens: TokenStream): TypeDeclaration {
+function parseTypeDeclaration(tokens: TokenStream): TypeDeclaration {
   tokens.pushOptions()
   try {
     const warnings: string[] = []
@@ -188,9 +224,7 @@ export function parseTypeDeclaration(tokens: TokenStream): TypeDeclaration {
   }
 }
 
-export function parseFunctionDeclaration(
-  tokens: TokenStream
-): FunctionDeclaration {
+function parseFunctionDeclaration(tokens: TokenStream): FunctionDeclaration {
   tokens.pushOptions()
   try {
     const typeTokens = tokens.takeUntil('LPAREN')
@@ -204,7 +238,7 @@ export function parseFunctionDeclaration(
     const next = tokens.peek()
     if (next.type === 'SEMICOLON') {
       return {
-        type: 'declaration',
+        type: 'function-declaration',
         name: nameToken.value,
         returnType: typeTokens,
         args,
@@ -216,7 +250,7 @@ export function parseFunctionDeclaration(
 
     const body = parseBody(tokens, false)
     return {
-      type: 'definition',
+      type: 'function',
       name: nameToken.value,
       returnType: typeTokens,
       args,
