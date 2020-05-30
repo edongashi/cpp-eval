@@ -38,7 +38,12 @@ export interface RunOptions {
   suffix?: string
   requireOk?: boolean
   sourceMapper?: (source: string) => string
-  validateStdout?: (stdout: string) => AnalysisResult
+  validateStdout?: (output: {
+    stdout: string
+    ok: string[]
+    warnings: string[]
+    errors: string[]
+  }) => AnalysisResult
 }
 
 export interface AnalysisSpecification {

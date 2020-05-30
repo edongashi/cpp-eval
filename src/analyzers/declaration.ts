@@ -188,7 +188,10 @@ export function declarationRuns(
 
       const stdoutLog: string[] = []
       if (typeof validateStdout === 'function') {
-        const result = await normalizeAnalysisResult(validateStdout(stdout))
+        const result = await normalizeAnalysisResult(
+          validateStdout({ stdout, ok, errors, warnings })
+        )
+
         if (!result.success) {
           stdoutFail = true
         }
