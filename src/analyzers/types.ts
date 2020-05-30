@@ -9,6 +9,7 @@ export interface AnalyzerConfig {
 export interface AnalysisResultObject {
   success: boolean
   log?: string
+  skipped?: boolean
 }
 
 export type AnalysisResult =

@@ -249,7 +249,7 @@ function parseFunctionDeclaration(tokens: TokenStream): FunctionDeclaration {
         returnType: typeTokens,
         args,
         body: [],
-        source: [typeTokens[0], tokens.next()],
+        source: [typeTokens[0] || nameToken, tokens.next()],
         warnings: []
       }
     }
@@ -261,7 +261,7 @@ function parseFunctionDeclaration(tokens: TokenStream): FunctionDeclaration {
       returnType: typeTokens,
       args,
       body,
-      source: [typeTokens[0], body[body.length - 1]],
+      source: [typeTokens[0] || nameToken, body[body.length - 1]],
       warnings: []
     }
   } finally {

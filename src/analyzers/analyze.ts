@@ -29,7 +29,7 @@ async function runChain<TElement>(
   for (let i = 0; i < analyzers.length; i++) {
     const analyzer = analyzers[i]
     if (failed) {
-      results.push({ analyzer, result: { success: false } })
+      results.push({ analyzer, result: { success: false, skipped: true } })
     } else {
       const result = await normalizeAnalysisResult(analyzer.analyze(element))
       results.push({ analyzer, result })
@@ -72,7 +72,7 @@ export async function analyze(
       const heuristicLength = heuristicMatch.source.length
       decl = heuristicLength < exactLength ? heuristicMatch : exactMatch
     } else {
-      root.exact.declarations[key] || root.heuristic.declarations[key]
+      decl = root.heuristic.declarations[key] || root.exact.declarations[key]
     }
 
     if (decl) {
