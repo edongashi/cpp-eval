@@ -1,4 +1,4 @@
-import { parse } from '../parser'
+import { parse, Declaration } from '../parser'
 import {
   AnalysisResult,
   AnalysisResultObject,
@@ -62,8 +62,17 @@ export async function analyze(
 
   for (const key in spec.declarations) {
     const analyzer = spec.declarations[key]
-    const decl =
+    const exactMatch = root.exact.declarations[key]
+    const heuristicMatch = root.heuristic.declarations[key]
+
+    let decl: Declaration | null = null
+    if (exactMatch && heuristicMatch) {
+      const exactLength = exactMatch.source.length
+      const heuristicLength = heuristicMatch.source.length
+      decl = heuristicLength < exactLength ? heuristicMatch : exactMatch
+    } else {
       root.exact.declarations[key] || root.heuristic.declarations[key]
+    }
 
     if (decl) {
       declarations[key] = await runChain(decl, analyzer)

@@ -55,18 +55,21 @@ export function hasDeclaration(
       const exact = root.exact.declarations[declaration]
       const heuristic = root.heuristic.declarations[declaration]
 
-      if (!!exact !== !!heuristic) {
+      const exactSource = exact ? exact.source : null
+      const heuristicSource = heuristic ? heuristic.source : null
+
+      if (exactSource !== heuristicSource) {
         return {
           success: true,
           log: 'Exact and heuristic matches are not identical.'
         }
       }
 
-      if (exact) {
+      if (exactSource) {
         return true
       }
 
-      if (heuristic) {
+      if (heuristicSource) {
         return {
           success: true,
           log: 'Matched via heuristic search.'
