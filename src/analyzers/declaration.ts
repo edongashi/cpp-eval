@@ -166,20 +166,24 @@ export function declarationRuns(
       const warnings: string[] = []
       const errors: string[] = []
 
-      stdout = stdout.replace(/<assert-ok>.*?<\/assert-ok>/gis, (match) => {
-        ok.push(match)
+      stdout = stdout.replace(/<assert-ok>.*?<\/assert-ok>/gs, (match) => {
+        ok.push(match.replace('<assert-ok>', '').replace('</assert-ok>', ''))
         return ''
       })
 
-      stdout = stdout.replace(/<assert-warn>.*?<\/assert-warn>/gis, (match) => {
-        warnings.push(match)
+      stdout = stdout.replace(/<assert-warn>.*?<\/assert-warn>/gs, (match) => {
+        warnings.push(
+          match.replace('<assert-warn>', '').replace('</assert-warn>', '')
+        )
         return ''
       })
 
       stdout = stdout.replace(
-        /<assert-error>.*?<\/assert-error>/gis,
+        /<assert-error>.*?<\/assert-error>/gs,
         (match) => {
-          errors.push(match)
+          errors.push(
+            match.replace('<assert-error>', '').replace('</assert-error>', '')
+          )
           return ''
         }
       )
@@ -201,13 +205,15 @@ export function declarationRuns(
         }
       }
 
-      stdoutLog.push(`Exited with status ${result.exitCode}`)
+      if (result.exitCode != 0) {
+        stdoutLog.push(`Exited with status ${result.exitCode}`)
+      }
 
       const log = [
-        ...errors.map((s) => `[ERROR] ${s}`),
-        ...warnings.map((s) => `[WARN] ${s}`),
-        ...ok.map((s) => `[OK] ${s}`),
-        ...stdoutLog
+        ...errors.filter((s) => s).map((s) => `[ERROR] ${s}`),
+        ...warnings.filter((s) => s).map((s) => `[WARN] ${s}`),
+        ...ok.filter((s) => s).map((s) => `[OK] ${s}`),
+        ...stdoutLog.filter((s) => s)
       ]
 
       if (stdoutFail || result.exitCode != 0 || errors.length > 0) {

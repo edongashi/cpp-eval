@@ -10,11 +10,11 @@ const lexer = moo.compile({
   CHAR,
   USING: /using\s+namespace\s+std;?/,
   TYPE_DECLARATION: {
-    match: /(?:class|enum|struct)\s+[a-zA-Z_][a-zA-Z0-9_]*\s*{/,
+    match: /(?:class|enum|struct)\s+[a-zA-Z_][a-zA-Z0-9_]*\s*\{/,
     lineBreaks: true
   },
   FUNCTION_DECLARATION: {
-    match: /[a-zA-Z_][a-zA-Z0-9_<>*]*\s+[a-zA-Z_][a-zA-Z0-9_]*\([^()]*\)\s*{/,
+    match: /[a-zA-Z_][a-zA-Z0-9_*]*(?:\s*<[a-zA-Z_][a-zA-Z0-9_*]*>\s*|\s+)[a-zA-Z_][a-zA-Z0-9_]*\s*\([^()]*\)\s*(?:;\s*)?\{/,
     lineBreaks: true
   },
   NEWLINE: { match: /\r?\n/, lineBreaks: true },

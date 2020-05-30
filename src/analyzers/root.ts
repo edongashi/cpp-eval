@@ -45,6 +45,19 @@ export function hasInclude(
   })
 }
 
+export function doesNotContainKeyword(
+  keyword: string,
+  config: AnalyzerConfig
+): RootAnalyzer {
+  keyword = 'KEYWORD-' + keyword.toUpperCase().replace(/^KEYWORD-/, '')
+  return analyzer({
+    config,
+    analyze(root) {
+      return !root.tokens.some((t) => t.type === keyword)
+    }
+  })
+}
+
 export function hasDeclaration(
   declaration: string,
   config: AnalyzerConfig

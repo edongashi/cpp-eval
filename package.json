@@ -15,7 +15,7 @@
     "typescript": "~3.9.3"
   },
   "scripts": {
-    "start": "ts-node src/main",
+    "start": "ts-node src/index",
     "clean": "rimraf coverage build tmp",
     "build": "tsc -p tsconfig.release.json",
     "build:watch": "tsc -w -p tsconfig.release.json",

@@ -1,4 +1,4 @@
-import { parse, Declaration } from '../parser'
+import { parse, Declaration, DocumentRoot } from '../parser'
 import {
   AnalysisResult,
   AnalysisResultObject,
@@ -53,6 +53,7 @@ export async function analyze(
       result: AnalysisResultObject
     }>
   }
+  document: DocumentRoot
 }> {
   const root = parse(source)
 
@@ -83,6 +84,7 @@ export async function analyze(
 
   return {
     root: rootChain,
-    declarations
+    declarations,
+    document: root
   }
 }
