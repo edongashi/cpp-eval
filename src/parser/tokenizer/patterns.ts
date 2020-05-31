@@ -1,7 +1,7 @@
 export const COMMENT = /\/\/.*?$/
 
 export const MULTILINE_COMMENT = {
-  match: /\/\*(?:.|\n)*?\*\//,
+  match: /\/\*(?:.|\r?\n)*?\*\//,
   lineBreaks: true
 }
 

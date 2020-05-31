@@ -72,7 +72,7 @@ export async function analyze(
       const heuristicLength = heuristicMatch.source.length
       decl = heuristicLength < exactLength ? heuristicMatch : exactMatch
     } else {
-      decl = root.heuristic.declarations[key] || root.exact.declarations[key]
+      decl = heuristicMatch || exactMatch
     }
 
     if (decl) {

@@ -40,7 +40,10 @@ export class TokenStream {
     for (i = this.position + 1; i < this.tokens.length; i++) {
       const token = this.tokens[i]
 
-      if (options.ignoreComments && token.type === 'COMMENT') {
+      if (
+        options.ignoreComments &&
+        (token.type === 'COMMENT' || token.type === 'MULTILINE_COMMENT')
+      ) {
         continue
       }
 
